@@ -4,9 +4,9 @@ import pytest
 from mock import Mock
 from nameko.containers import ServiceContainer, WorkerContext
 from nameko.testing.services import dummy, entrypoint_hook
-from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy import Column, Integer, String, create_engine, text
 from sqlalchemy.engine import Engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm.session import Session
 
 from nameko_sqlalchemy.database import DB_URIS_KEY
@@ -35,7 +35,7 @@ class ExampleService(object):
 
     @dummy
     def read(self, id):
-        return self.session.query(ExampleModel).get(id).data
+        return self.session.get(ident=id, entity=ExampleModel).data
 
 
 @pytest.fixture
@@ -174,7 +174,7 @@ def test_worker_teardown(db_session):
 def test_end_to_end(container_factory, tmpdir):
 
     # create a temporary database
-    db_uri = 'sqlite:///{}'.format(tmpdir.join("db").strpath)
+    db_uri = f'sqlite:///{tmpdir.join("db").strpath}'
     engine = create_engine(db_uri)
     ExampleModel.metadata.create_all(engine)
 
@@ -192,8 +192,10 @@ def test_end_to_end(container_factory, tmpdir):
         pk = write("foobar")
 
     # verify changes written to disk
-    entries = list(engine.execute('SELECT data FROM example LIMIT 1'))
-    assert entries == [('foobar',)]
+    engine = create_engine(db_uri)
+    with engine.connect() as conn:
+        entries = list(conn.execute(text('SELECT data FROM example LIMIT 1')))
+        assert entries == [('foobar',)]
 
     # read through the service
     with entrypoint_hook(container, "read") as read:

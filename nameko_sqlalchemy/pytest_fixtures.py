@@ -114,7 +114,7 @@ def model_base():
     raise NotImplementedError("Fixture `model_base` has to be overwritten")
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.fixture(scope='session')
 def db_connection(db_url, model_base, db_engine_options):
     engine = create_engine(db_url, **db_engine_options)
     model_base.metadata.create_all(engine)
@@ -123,11 +123,11 @@ def db_connection(db_url, model_base, db_engine_options):
 
     yield connection
 
-    model_base.metadata.drop_all()
+    model_base.metadata.drop_all(bind=engine)
     engine.dispose()
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def db_session(db_connection, model_base):
     session = sessionmaker(bind=db_connection, class_=Session)
     db_session = session()
@@ -143,7 +143,7 @@ def db_session(db_connection, model_base):
     db_session.close()
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def database(db_connection, model_base):
 
     database = DatabaseWrapper(

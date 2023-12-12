@@ -11,7 +11,7 @@ eventlet.monkey_patch()  # noqa (code before rest of imports)
 import pytest
 import requests
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 TOXIPROXY_PROXY_NAME = 'nameko_sqlalchemy_test_mysql'
 
@@ -25,7 +25,7 @@ class ExampleModel(DeclarativeBase):
     data = Column(String(100))
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def toxiproxy(toxiproxy_api_url, toxiproxy_db_url):
 
     class Controller(object):
@@ -33,13 +33,11 @@ def toxiproxy(toxiproxy_api_url, toxiproxy_db_url):
             self.api_url = api_url
 
         def enable(self):
-            resource = 'http://{}/reset'.format(self.api_url)
+            resource = f'http://{self.api_url}/reset'
             requests.post(resource)
 
         def disable(self):
-            resource = 'http://{}/proxies/{}'.format(
-                self.api_url, TOXIPROXY_PROXY_NAME
-            )
+            resource = f'http://{self.api_url}/proxies/{TOXIPROXY_PROXY_NAME}'
             data = {
                 'enabled': False
             }

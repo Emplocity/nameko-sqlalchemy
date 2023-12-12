@@ -4,9 +4,9 @@ import pytest
 from mock import Mock, patch
 from nameko.containers import ServiceContainer, WorkerContext
 from nameko.testing.services import dummy, entrypoint_hook
-from sqlalchemy import Column, String, create_engine
+from sqlalchemy import Column, String, create_engine, text
 from sqlalchemy.engine import Engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 from nameko_sqlalchemy.database import DB_URIS_KEY, Database, Session
 
@@ -300,7 +300,7 @@ class BaseTestEndToEnd:
 
     @pytest.fixture
     def db_uri(self, tmpdir):
-        return 'sqlite:///{}'.format(tmpdir.join("db").strpath)
+        return f'sqlite:///{tmpdir.join("db").strpath}'
 
     @pytest.fixture
     def container(self, container_factory, db_uri):
@@ -338,7 +338,7 @@ class TestGetSessionEndToEnd(BaseTestEndToEnd):
         @dummy
         def read(self, key):
             session = self.db.get_session()
-            value = session.query(ExampleModel).get(key).value
+            value = session.get(ident=key, entity=ExampleModel).value
             session.close()
             return value
 
@@ -349,10 +349,10 @@ class TestGetSessionEndToEnd(BaseTestEndToEnd):
             write(key='spam', value='ham')
 
         # verify changes written to disk
-        entries = list(
-            create_engine(db_uri).execute(
-                'SELECT key, value FROM example LIMIT 1'))
-        assert entries == [('spam', 'ham',)]
+        engine = create_engine(db_uri)
+        with engine.connect() as conn:
+            entries = list(conn.execute(text('SELECT key, value FROM example LIMIT 1')))
+            assert entries == [('spam', 'ham',)]
 
         # read through the service
         with entrypoint_hook(container, 'read') as read:
@@ -375,7 +375,7 @@ class TestGetSessionContextManagerEndToEnd(BaseTestEndToEnd):
         @dummy
         def read(self, key):
             with self.db.get_session() as session:
-                return session.query(ExampleModel).get(key).value
+                return session.get(ident=key, entity=ExampleModel).value
 
     def test_successful_write_and_read(slf, container, db_uri):
 
@@ -384,10 +384,10 @@ class TestGetSessionContextManagerEndToEnd(BaseTestEndToEnd):
             write(key='spam', value='ham')
 
         # verify changes written to disk
-        entries = list(
-            create_engine(db_uri).execute(
-                'SELECT key, value FROM example LIMIT 1'))
-        assert entries == [('spam', 'ham',)]
+        engine = create_engine(db_uri)
+        with engine.connect() as conn:
+            entries = list(conn.execute(text('SELECT key, value FROM example LIMIT 1')))
+            assert entries == [('spam', 'ham',)]
 
         # read through the service
         with entrypoint_hook(container, 'read') as read:
@@ -409,7 +409,7 @@ class TestWorkerScopeSessionEndToEnd(BaseTestEndToEnd):
 
         @dummy
         def read(self, key):
-            return self.db.session.query(ExampleModel).get(key).value
+            return self.db.session.get(ident=key, entity=ExampleModel).value
 
     def test_successful_write_and_read(slf, container, db_uri):
 
@@ -418,10 +418,10 @@ class TestWorkerScopeSessionEndToEnd(BaseTestEndToEnd):
             write(key='spam', value='ham')
 
         # verify changes written to disk
-        entries = list(
-            create_engine(db_uri).execute(
-                'SELECT key, value FROM example LIMIT 1'))
-        assert entries == [('spam', 'ham',)]
+        engine = create_engine(db_uri)
+        with engine.connect() as conn:
+            entries = list(conn.execute(text('SELECT key, value FROM example LIMIT 1')))
+            assert entries == [('spam', 'ham',)]
 
         # read through the service
         with entrypoint_hook(container, 'read') as read:
@@ -444,7 +444,7 @@ class TestWorkerScopeSessionInContextEndToEnd(BaseTestEndToEnd):
         @dummy
         def read(self, key):
             with self.db.session as session:
-                return session.query(ExampleModel).get(key).value
+                return session.get(ident=key, entity=ExampleModel).value
 
     def test_successful_write_and_read(slf, container, db_uri):
 
@@ -453,10 +453,10 @@ class TestWorkerScopeSessionInContextEndToEnd(BaseTestEndToEnd):
             write(key='spam', value='ham')
 
         # verify changes written to disk
-        entries = list(
-            create_engine(db_uri).execute(
-                'SELECT key, value FROM example LIMIT 1'))
-        assert entries == [('spam', 'ham',)]
+        engine = create_engine(db_uri)
+        with engine.connect() as conn:
+            entries = list(conn.execute(text('SELECT key, value FROM example LIMIT 1')))
+            assert entries == [('spam', 'ham',)]
 
         # read through the service
         with entrypoint_hook(container, 'read') as read:
