@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nameko-sqlalchemy"
-version = "2.0.0"
+version = "2.1.0"
 description = "SQLAlchemy dependency for nameko services"
 license = {file = "LICENSE.txt"}
 readme = "README.rst"
@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
     "nameko>=2.0.0",
-    "sqlalchemy>=1.4,<2"
+    "sqlalchemy>=1.4,<3"
 ]
 
 [project.urls]
