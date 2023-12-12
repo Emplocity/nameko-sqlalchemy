@@ -19,7 +19,7 @@ class DatabaseSession(DependencyProvider):
     def setup(self):
         service_name = self.container.service_name
         decl_base_name = self.declarative_base.__name__
-        uri_key = '{}:{}'.format(service_name, decl_base_name)
+        uri_key = f'{service_name}:{decl_base_name}'
 
         db_uris = self.container.config[DB_URIS_KEY]
         self.db_uri = db_uris[uri_key].format({

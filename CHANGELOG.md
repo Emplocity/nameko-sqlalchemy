@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+Version 2.1.0
+-------------
+
+Released 2023-12-14
+
+* Added support for SQLAlchemy 2.0 while still allowing 1.4 usage
+* Changed tests to use new instead of deprecated functions, excluding declarative_base()
+* Make tox run check + tests on both SQLAlchemy versions
+
+
 Version 2.0.0
 -------------
 
