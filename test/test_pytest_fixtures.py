@@ -1,7 +1,7 @@
 import pytest
 from nameko.testing.services import dummy, worker_factory
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 from nameko_sqlalchemy.database import Database
 
@@ -31,7 +31,7 @@ def test_can_save_model(db_session):
     user = User(id=1, name='Joe')
     db_session.add(user)
     db_session.commit()
-    saved_user = db_session.query(User).get(user.id)
+    saved_user = db_session.get(ident=user.id, entity=User)
     assert saved_user.id > 0
     assert saved_user.name == 'Joe'
 
@@ -136,7 +136,7 @@ class TestGetSession:
         @dummy
         def read(self, id_):
             session = self.db.get_session()
-            name = session.query(User).get(id_).name
+            name = session.get(ident=id_, entity=User).name
             session.close()
             return name
 
@@ -164,7 +164,7 @@ class TestGetSessionContextManager:
         @dummy
         def read(self, id_):
             with self.db.get_session() as session:
-                return session.query(User).get(id_).name
+                return session.get(ident=id_, entity=User).name
 
     def test_database_fixture(self, database):
 
@@ -189,7 +189,7 @@ class TestWorkerScopeSession:
 
         @dummy
         def read(self, id_):
-            return self.db.session.query(User).get(id_).name
+            return self.db.session.get(ident=id_, entity=User).name
 
     def test_database_fixture(self, database):
 
@@ -215,7 +215,7 @@ class TestWorkerScopeSessionInContext:
         @dummy
         def read(self, id_):
             with self.db.session as session:
-                return session.query(User).get(id_).name
+                return session.get(ident=id_, entity=User).name
 
     def test_database_fixture(self, database):
 
