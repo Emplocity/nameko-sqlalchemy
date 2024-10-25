@@ -8,7 +8,7 @@ version = "2.1.0"
 description = "SQLAlchemy dependency for nameko services"
 license = {file = "LICENSE.txt"}
 readme = "README.rst"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [{name="onefinestay", email="engineering@onefinestay.com"}]
 classifiers = [
     "Intended Audience :: Developers",
@@ -17,9 +17,10 @@ classifiers = [
     "Operating System :: POSIX",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Internet",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
@@ -76,7 +77,7 @@ select = [
 ]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"
 plugins = "sqlalchemy.ext.mypy.plugin"
 mypy_path = "nameko_sqlalchemy/"
 namespace_packages = true
