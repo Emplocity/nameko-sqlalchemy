@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nameko-sqlalchemy"
-version = "2.0.0"
+version = "2.1.0"
 description = "SQLAlchemy dependency for nameko services"
 license = {file = "LICENSE.txt"}
 readme = "README.rst"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [{name="onefinestay", email="engineering@onefinestay.com"}]
 classifiers = [
     "Intended Audience :: Developers",
@@ -17,15 +17,16 @@ classifiers = [
     "Operating System :: POSIX",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Internet",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
     "nameko>=2.0.0",
-    "sqlalchemy>=1.4,<2"
+    "sqlalchemy>=1.4,<3"
 ]
 
 [project.urls]
@@ -33,15 +34,15 @@ Homepage = "https://github.com/onefinestay/nameko-sqlalchemy"
 
 [project.optional-dependencies]
 dev = [
-    "coverage==7.3.2",
-    "isort==5.12.0",
-    "mypy==1.7.1",
-    "pytest==7.4.3",
-    "requests==2.31.0",
-    "ruff==0.1.6",
-    "PyMySQL==1.1.0",
-    "types-mock==5.1.0.3",
-    "types-requests==2.31.0.10",
+    "coverage==7.6.4",
+    "isort==5.13.2",
+    "mypy==1.13.0",
+    "pytest==8.3.3",
+    "requests==2.32.3",
+    "PyMySQL==1.1.1",
+    "ruff==0.7.1",
+    "types-mock==5.1.0.20240425",
+    "types-requests==2.32.0.20241016",
 ]
 
 [project.entry-points."pytest11"]
@@ -58,13 +59,14 @@ src_paths = [
     "nameko_sqlalchemy/",
     "test/",
 ]
-known_first_party = "nameko_chassis"
+known_first_party = "nameko_sqlalchemy"
 
 [tool.ruff]
 extend-exclude = [
     ".venv",
     "migrations",
 ]
+[tool.ruff.lint]
 ignore = [
     "E402",
     "E501",
@@ -76,7 +78,7 @@ select = [
 ]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"
 plugins = "sqlalchemy.ext.mypy.plugin"
 mypy_path = "nameko_sqlalchemy/"
 namespace_packages = true
